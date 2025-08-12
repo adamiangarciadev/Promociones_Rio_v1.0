@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RÍO – Pedidos por Promoción</title>
+  <style>
+    :root{--primary:#2363eb;--muted:#f6f7fb;--border:#e5e7eb;--text:#0f172a;--sub:#475569;--ok:#16a34a;--danger:#dc2626}
+    html,body{margin:0;padding:0;background:linear-gradient(#fff,#f8fafc);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;color:var(--text)}
+    .wrap{max-width:1100px;margin:32px auto;padding:0 16px}
+    h1{font-size:22px;margin:0 0 12px}
+    .card{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 3px 10px rgba(0,0,0,.04);margin:12px 0}
+    .card-h{padding:14px 16px;border-bottom:1px solid var(--border);font-weight:600}
+    .card-c{padding:16px}
+    label.small{font-size:13px;color:var(--sub);display:block;margin-bottom:4px}
+    .row{display:grid;grid-template-columns:1fr 3fr;gap:12px}
+    .text{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;font-size:14px}
+    .select{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;font-size:14px;background:#fff}
+    .btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);background:#fff;padding:10px 14px;border-radius:12px;font-size:14px;cursor:pointer}
+    .btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+    .btn.ghost{background:transparent}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .chips{display:flex;gap:8px;overflow:auto;padding-bottom:6px}
+    .chip{border:1px solid var(--border);border-radius:12px;padding:8px 10px;background:#fff;cursor:pointer;white-space:nowrap}
+    .chip.act{background:#eef2ff;border-color:#c7d2fe}
+    .list{max-height:260px;overflow:auto;border:1px solid var(--border);border-radius:12px;padding:8px;background:#fff}
+    .row-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 8px;border-radius:8px}
+    .row-item:hover{background:var(--muted)}
+    .pill{border:1px solid var(--border);border-radius:999px;padding:6px 10px;cursor:pointer;background:#fff}
+    .pill.act{background:var(--primary);border-color:var(--primary);color:#fff}
+    table{width:100%;border-collapse:collapse}
+    th,td{font-size:14px;border-bottom:1px solid var(--border);padding:8px;text-align:left}
+    .right{text-align:right}
+    .muted{color:var(--sub)}
+    details summary{cursor:pointer;color:var(--sub)}
+    .switch{display:flex;align-items:center;gap:8px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="muted" style="margin-bottom:6px">RÍO – Pedidos por Promoción</div>
+    
+    <div class="card">
+      <div class="card-h">Datos del pedido</div>
+      <div class="card-c">
+        <div class="row">
+          <div>
+            <label class="small">Sucursal</label>
+            <select id="sucursal" class="select"></select>
+          </div>
+          <div>
+            <label class="small">Buscar promoción o artículo</label>
+            <input id="busqueda" class="text" placeholder="Ej: BOXER, 03-3200, KAURY, SIGRY…" />
+            <div class="chips" id="chipsPromos" style="margin-top:8px"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="panelPromo" class="card" style="display:none">
+      <div class="card-h" id="promoTitulo">Promoción</div>
+      <div class="card-c">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+
+          <div>
+            <div class="switch" style="justify-content:space-between;margin-bottom:6px">
+              <div><strong>Artículos</strong></div>
+              <label class="small switch"><input type="checkbox" id="todosArt"/> Todos</label>
+            </div>
+            <div class="list" id="listaArt"></div>
+          </div>
+
+          <div>
+            <div class="switch" style="justify-content:space-between;margin-bottom:6px">
+              <div><strong>Talles</strong></div>
+              <label class="small switch"><input type="checkbox" id="todosTalles"/> Todos</label>
+            </div>
+            <div id="talles" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+
+            <div style="display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:14px">
+              <div>
+                <label class="small">Cantidad</label>
+                <input id="cantidad" type="number" min="1" value="1" class="text" />
+              </div>
+              <button id="agregar" class="btn primary">Agregar a la lista</button>
+            </div>
+
+            <div id="precios" class="muted" style="font-size:12px;margin-top:12px"></div>
+          </div>
+
+          <div>
+            <div class="card" style="margin:0">
+              <div class="card-c" style="font-size:13px">
+                <div><strong>Cómo funciona</strong></div>
+                <ol>
+                  <li>Elegí la <b>sucursal</b>.</li>
+                  <li>Buscá y seleccioná la <b>promoción</b>.</li>
+                  <li>Elegí <b>artículos</b> o activá <i>Todos</i>.</li>
+                  <li>Elegí <b>talles</b> o activá <i>Todos</i>.</li>
+                  <li>Indicá <b>cantidad</b> y presioná <i>Agregar</i>.</li>
+                </ol>
+                <div class="muted">* El archivo <code>promociones.json</code> se lee automáticamente desde la carpeta del sitio.</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h">Lista del pedido</div>
+      <div class="card-c">
+        <div id="vacio" class="muted">Todavía no agregaste combinaciones.</div>
+        <div id="tablaWrap" style="display:none">
+          <div style="overflow:auto">
+            <table>
+              <thead>
+                <tr>
+                  <th>Sucursal</th>
+                  <th>Promo</th>
+                  <th>Artículo</th>
+                  <th>Talle</th>
+                  <th class="right">Cant.</th>
+                  <th class="right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
+            <button id="vaciar" class="btn">Vaciar</button>
+            <button id="descargar" class="btn primary">Descargar TXT</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <details class="card">
+      <summary class="card-h">¿Cómo publicarlo en GitHub Pages?</summary>
+      <div class="card-c" style="font-size:14px">
+        1) Subí este <code>index.html</code> y <code>promociones.json</code> al repositorio (misma carpeta).<br>
+        2) En Settings → Pages, elegí <b>Deploy from a branch</b> y seleccioná la rama <b>main</b>, carpeta <b>root</b> (/) y guardá.<br>
+        3) Esperá el deploy. La página cargará el JSON automáticamente.
+      </div>
+    </details>
+  </div>
+
+  <script>
+    // ======= Datos estáticos =======
+    const SUCURSALES = [
+      "CORRIENTES 1","CORRIENTES 2","AVELLANEDA 2","NAZCA","MORENO","QUILMES","CASTELLI","SARMIENTO","LAMARCA"
+    ];
+
+    // ======= Estado =======
+    let PROMOS = []; // desde promociones.json
+    let FILTRO = "";
+    let SELECCION_PROMO = null; // objeto promo
+    let SELEC_ARTS = new Set();
+    let SELEC_TALLES = new Set();
+    let TODOS_ART = false;
+    let TODOS_TALLES = false;
+    let ITEMS = []; // {id, sucursal, promoId, promo, art, talle, cantidad}
+
+    // ======= Utilidades =======
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+    function normalize(s){
+      return (s||"").toString().toLowerCase()
+        .normalize("NFD").replace(/\p{Diacritic}/gu, "");
+    }
+
+    function downloadTxt(filename, text){
+      const blob = new Blob([text], {type:"text/plain;charset=utf-8"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function uid(){ return Math.random().toString(36).slice(2) + Date.now().toString(36); }
+
+    // ======= Render helpers =======
+    function renderSucursales(){
+      const s = $("#sucursal");
+      s.innerHTML = `<option value="">Elegí sucursal</option>` + SUCURSALES.map(x=>`<option value="${x}">${x}</option>`).join("");
+    }
+
+    function renderChips(){
+      const cont = $("#chipsPromos");
+      const txt = normalize(FILTRO);
+      const list = PROMOS.filter(p=>{
+        if(!txt) return true;
+        const enNombre = normalize(p.nombre).includes(txt) || normalize(p.marca).includes(txt);
+        const enArt = (p.articulos||[]).some(a=> normalize(a.codigo).includes(txt) || normalize(a.desc).includes(txt));
+        return enNombre || enArt;
+      }).slice(0, 10);
+
+      cont.innerHTML = list.map(p=>
+        `<button class="chip ${SELECCION_PROMO && SELECCION_PROMO.id===p.id? 'act':''}" data-id="${p.id}">
+          <div class="muted" style="font-size:11px;text-transform:uppercase">${p.marca||''}</div>
+          <div style="font-size:13px;font-weight:600">${p.nombre}</div>
+        </button>`
+      ).join("");
+
+      cont.querySelectorAll('.chip').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const id = btn.getAttribute('data-id');
+          SELECCION_PROMO = PROMOS.find(x=>x.id===id) || null;
+          SELEC_ARTS = new Set();
+          SELEC_TALLES = new Set();
+          TODOS_ART = false; TODOS_TALLES = false;
+          renderPromoPanel();
+        });
+      });
+    }
+
+    function renderPromoPanel(){
+      const panel = $("#panelPromo");
+      if(!SELECCION_PROMO){ panel.style.display='none'; return; }
+      panel.style.display='block';
+      $("#promoTitulo").textContent = SELECCION_PROMO.nombre;
+
+      // Artículos
+      const la = $("#listaArt");
+      la.innerHTML = (SELECCION_PROMO.articulos||[]).map(a=>
+        `<div class="row-item">
+          <label style="display:flex;align-items:center;gap:8px">
+            ${!TODOS_ART ? `<input type="checkbox" data-art="${a.codigo}">` : ""}
+            <span style="font-family:ui-monospace, SFMono-Regular, Menlo, monospace">${a.codigo}</span>
+          </label>
+          <span class="muted" style="font-size:12px">${a.desc||""}</span>
+        </div>`
+      ).join("");
+
+      // Talles
+      const tt = $("#talles");
+      tt.innerHTML = (SELECCION_PROMO.talles||[]).map(t=>
+        `<button class="pill ${SELEC_TALLES.has(t)?'act':''}" data-talle="${t}">${t}</button>`
+      ).join("");
+
+      // Precios
+      const pr = $("#precios");
+      pr.innerHTML = (SELECCION_PROMO.precios||[]).map(p=>
+        `<div>• ${p.label}: <b>$ ${Number(p.valor).toLocaleString('es-AR')}</b></div>`
+      ).join("");
+
+      // Switches
+      const chkA = $("#todosArt");
+      const chkT = $("#todosTalles");
+      chkA.checked = TODOS_ART; chkT.checked = TODOS_TALLES;
+
+      chkA.onchange = ()=>{ TODOS_ART = chkA.checked; renderPromoPanel(); };
+      chkT.onchange = ()=>{ TODOS_TALLES = chkT.checked; renderPromoPanel(); };
+
+      la.querySelectorAll('input[type="checkbox"]').forEach(chk=>{
+        chk.addEventListener('change', ()=>{
+          const code = chk.getAttribute('data-art');
+          if(chk.checked) SELEC_ARTS.add(code); else SELEC_ARTS.delete(code);
+        });
+      });
+
+      tt.querySelectorAll('.pill').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          if(TODOS_TALLES) return;
+          const t = btn.getAttribute('data-talle');
+          if(SELEC_TALLES.has(t)) SELEC_TALLES.delete(t); else SELEC_TALLES.add(t);
+          btn.classList.toggle('act');
+        });
+      });
+
+      // Agregar
+      $("#agregar").onclick = ()=>{
+        const suc = $("#sucursal").value;
+        if(!suc) return alert('Elegí una sucursal');
+        const arts = TODOS_ART ? (SELECCION_PROMO.articulos||[]).map(a=>a.codigo) : Array.from(SELEC_ARTS);
+        const talles = TODOS_TALLES ? (SELECCION_PROMO.talles||[]) : Array.from(SELEC_TALLES);
+        const cant = Math.max(1, Number($("#cantidad").value||1));
+        if(!arts.length) return alert("Seleccioná al menos un artículo (o activá 'Todos los artículos')");
+        if(!talles.length) return alert("Seleccioná al menos un talle (o activá 'Todos los talles')");
+
+        const nuevos = [];
+        for(const a of arts){ for(const t of talles){ nuevos.push({ id:uid(), sucursal:suc, promoId:SELECCION_PROMO.id, promo:SELECCION_PROMO.nombre, art:a, talle:t, cantidad:cant }); } }
+        ITEMS = ITEMS.concat(nuevos);
+        renderTabla();
+      };
+    }
+
+    function renderTabla(){
+      const vacio = $("#vacio");
+      const wrap = $("#tablaWrap");
+      const tb = $("#tbody");
+      if(!ITEMS.length){ vacio.style.display='block'; wrap.style.display='none'; return; }
+      vacio.style.display='none'; wrap.style.display='block';
+      tb.innerHTML = ITEMS.map(it=>
+        `<tr>
+          <td>${it.sucursal}</td>
+          <td>${it.promo}</td>
+          <td><code>${it.art}</code></td>
+          <td>${it.talle}</td>
+          <td class="right">${it.cantidad}</td>
+          <td class="right"><button class="btn ghost" data-del="${it.id}">Quitar</button></td>
+        </tr>`
+      ).join("");
+
+      tb.querySelectorAll('button[data-del]').forEach(b=>{
+        b.addEventListener('click', ()=>{
+          const id = b.getAttribute('data-del');
+          ITEMS = ITEMS.filter(x=>x.id!==id);
+          renderTabla();
+        });
+      });
+
+      $("#vaciar").onclick = ()=>{ ITEMS = []; renderTabla(); };
+      $("#descargar").onclick = ()=>{
+        const head = '# SUCURSAL;PROMO_ID;ARTICULO;TALLE;CANTIDAD\n';
+        const body = ITEMS.map(i=>`${i.sucursal};${i.promoId};${i.art};${i.talle};${i.cantidad}`).join('\n');
+        const fecha = new Date().toISOString().slice(0,10);
+        downloadTxt(`pedido_promos_${fecha}.txt`, head+body+'\n');
+      };
+    }
+
+    // ======= Boot =======
+    async function boot(){
+      renderSucursales();
+      // Cargar JSON relativo: debe estar en la misma carpeta que index.html
+      let json;
+      try{
+        const res = await fetch('promociones.json', {cache:'no-store'});
+        if(!res.ok) throw new Error('HTTP '+res.status);
+        json = await res.json();
+        if(!Array.isArray(json)) throw new Error('promociones.json debe ser un array');
+      }catch(err){
+        alert('No se pudo cargar promociones.json: '+err.message);
+        return;
+      }
+      PROMOS = json;
+      renderChips();
+
+      // Eventos
+      $("#busqueda").addEventListener('input', e=>{ FILTRO = e.target.value; renderChips(); });
+    }
+
+    boot();
+  </script>
+</body>
+</html>
